@@ -388,3 +388,118 @@
   text-align: center;
   animation: fadeUp 0.3s ease;
 }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .chat-layout {
+    position: relative;
+  }
+
+  .sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    width: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .chat-main {
+    width: 100%;
+  }
+
+  .chat-header {
+    padding: 0.8rem 1rem;
+  }
+
+  .chat-header-info {
+    gap: 0.6rem;
+  }
+
+  .back-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: auto;
+  }
+
+  .messages-area {
+    padding: 1rem;
+  }
+
+  .bubble {
+    max-width: 85%;
+  }
+
+  .controls-row {
+    gap: 0.5rem;
+  }
+
+  .lang-select {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .clone-toggle {
+    margin-left: 0;
+  }
+
+  .toggle-text {
+    font-size: 0.78rem;
+  }
+
+  .input-area {
+    padding: 0.8rem;
+  }
+
+  /* Mobile empty state shows menu button */
+  .chat-empty-mobile-header {
+    display: flex !important;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+/* Hide on desktop */
+.back-btn { display: none; }
+.menu-btn { display: none; }
+.chat-empty-mobile-header { display: none; }
+
+/* Overlay when sidebar open on mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+.sidebar-overlay.show { display: block; }

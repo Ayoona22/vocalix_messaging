@@ -17,6 +17,7 @@ export default function Chat({ user, onLogout }) {
   const [sending, setSending] = useState(false);
   const [searching, setSearching] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEnd = useRef(null);
 
   useEffect(() => { loadFriends(); }, []);
@@ -25,7 +26,7 @@ export default function Chat({ user, onLogout }) {
 
   const loadFriends = async () => {
     const r = await api.get('/friends');
-    setFriends(r.data);
+    setFriends(Array.isArray(r.data) ? r.data : []);
   };
 
   const loadMessages = async () => {
@@ -47,6 +48,11 @@ export default function Chat({ user, onLogout }) {
     setShowSearch(false);
     setSearchEmail('');
     setSearchResults([]);
+  };
+
+  const selectFriend = (f) => {
+    setSelectedFriend(f);
+    setSidebarOpen(false);
   };
 
   const sendMessage = async (e) => {
@@ -71,8 +77,11 @@ export default function Chat({ user, onLogout }) {
 
   return (
     <div className="chat-layout">
+      {/* Overlay for mobile */}
+      <div className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)} />
+
       {/* Sidebar */}
-      <div className="sidebar">
+      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <span className="logo-icon">◈</span>
@@ -93,7 +102,6 @@ export default function Chat({ user, onLogout }) {
           <button className="icon-btn" onClick={() => setShowSearch(!showSearch)} title="Add friend">+</button>
         </div>
 
-        {/* Search Panel */}
         {showSearch && (
           <div className="search-panel fade-up">
             <div className="search-row">
@@ -121,7 +129,6 @@ export default function Chat({ user, onLogout }) {
           </div>
         )}
 
-        {/* Friends List */}
         <div className="friends-list">
           {friends.length === 0 && (
             <div className="no-friends">
@@ -132,7 +139,7 @@ export default function Chat({ user, onLogout }) {
           {friends.map(f => (
             <div key={f.id}
               className={`friend-item ${selectedFriend?.id === f.id ? 'active' : ''}`}
-              onClick={() => setSelectedFriend(f)}>
+              onClick={() => selectFriend(f)}>
               <div className="friend-avatar">{f.name[0].toUpperCase()}</div>
               <div className="friend-info">
                 <span className="friend-name">{f.name}</span>
@@ -146,15 +153,20 @@ export default function Chat({ user, onLogout }) {
       {/* Main Chat Area */}
       <div className="chat-main">
         {!selectedFriend ? (
-          <div className="chat-empty">
-            <div className="empty-icon">◈</div>
-            <h2>Select a conversation</h2>
-            <p>Choose a friend from the sidebar to start chatting</p>
-          </div>
+          <>
+            <div className="chat-empty-mobile-header">
+              <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+            </div>
+            <div className="chat-empty">
+              <div className="empty-icon">◈</div>
+              <h2>Select a conversation</h2>
+              <p>Choose a friend from the sidebar to start chatting</p>
+            </div>
+          </>
         ) : (
           <>
-            {/* Chat Header */}
             <div className="chat-header">
+              <button className="back-btn" onClick={() => { setSelectedFriend(null); setSidebarOpen(false); }}>←</button>
               <div className="chat-header-info">
                 <div className="friend-avatar large">{selectedFriend.name[0].toUpperCase()}</div>
                 <div>
@@ -162,9 +174,9 @@ export default function Chat({ user, onLogout }) {
                   <div className="chat-header-email">{selectedFriend.email}</div>
                 </div>
               </div>
+              <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
             </div>
 
-            {/* Messages */}
             <div className="messages-area">
               {messages.map(msg => (
                 <MessageBubble key={msg.id} msg={msg} isMe={msg.sender_id === user.id} />
@@ -172,9 +184,7 @@ export default function Chat({ user, onLogout }) {
               <div ref={messagesEnd} />
             </div>
 
-            {/* Input Area */}
             <div className="input-area">
-              {/* Language + Clone controls */}
               <div className="controls-row">
                 <div className="lang-group">
                   <label>From</label>
@@ -193,12 +203,11 @@ export default function Chat({ user, onLogout }) {
                   <label className="toggle-label">
                     <input type="checkbox" checked={cloneVoice} onChange={e => setCloneVoice(e.target.checked)} />
                     <span className="toggle-slider" />
-                    <span className="toggle-text">Voice Clone</span>
+                    <span className="toggle-text">🎙️ Clone</span>
                   </label>
                 </div>
               </div>
 
-              {/* Message Input */}
               <form onSubmit={sendMessage} className="message-form">
                 <textarea className="message-input input" placeholder="Type a message..."
                   value={text} onChange={e => setText(e.target.value)}
@@ -211,7 +220,7 @@ export default function Chat({ user, onLogout }) {
 
               {cloneVoice && (
                 <p className="clone-notice">
-                  🎙️ Voice clone is ON — your message will be sent as audio in your cloned voice
+                  🎙️ Voice clone ON — message will be sent as audio in your cloned voice
                 </p>
               )}
             </div>
